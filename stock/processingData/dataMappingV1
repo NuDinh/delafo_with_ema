@@ -1,0 +1,10 @@
+select st.*, 
+	ic.industry_lvl_1,
+	date(ic.ngay_giao_dich_dt) as ngay_giao_dich_dt,
+	case when extract(year from ic.ngay_giao_dich_dt) <= 2018 then 4 else ('2021-01-03' - date(ic.ngay_giao_dich_dt))/365 end 
+	as stock_age 
+	from stock_transaction st 
+	inner join
+	stock_industry_code ic on st.stock_id = ic.stock_id and ic.exchange_type  = 'HOSE'
+	where extract(dow from st.transaction_date) in (1,2,3,4,5)
+	and extract(year from st.transaction_date) >= 2018;
