@@ -1,10 +1,45 @@
 select st.*, 
 	ic.industry_lvl_1,
-	date(ic.ngay_giao_dich_dt) as ngay_giao_dich_dt,
-	case when extract(year from ic.ngay_giao_dich_dt) <= 2018 then 4 else ('2021-01-03' - date(ic.ngay_giao_dich_dt))/365 end 
+	date(ic.ngay_giao_dich_dt) as ngay_giao_dich_dt,	
+-- 	case when extract(year from ic.ngay_giao_dich_dt) <= 2018 then 4 
+-- 	else ('2021-01-03' - date(ic.ngay_giao_dich_dt))/365 end 
+	('2022-01-03' - date(ic.ngay_giao_dich_dt))/365
 	as stock_age 
 	from stock_transaction st 
 	inner join
 	stock_industry_code ic on st.stock_id = ic.stock_id and ic.exchange_type  = 'HOSE'
 	where extract(dow from st.transaction_date) in (1,2,3,4,5)
 	and extract(year from st.transaction_date) >= 2018;
+	
+	
+	
+	
+-- create new stock_data_mapping_v1 and insert by select query
+create table stock_data_mapping_v1 (
+	stock_id character(10),
+    open_price numeric(10,2),
+    highest_price numeric(10,2),
+    lowest_price numeric(10,2),
+    close_price numeric(10,2),
+    transaction_volume numeric,
+    status character(10),
+    transaction_date timestamp,
+	industry_lvl_1 VARCHAR ,
+	ngay_giao_dich_DT timestamp,
+	stock_age numeric(10,2)
+)
+insert into stock_data_mapping_v1 
+	select st.*, 
+	ic.industry_lvl_1,
+	date(ic.ngay_giao_dich_dt) as ngay_giao_dich_dt,	
+-- 	case when extract(year from ic.ngay_giao_dich_dt) <= 2018 then 4 
+-- 	else ('2021-01-03' - date(ic.ngay_giao_dich_dt))/365 end 
+	('2022-01-03' - date(ic.ngay_giao_dich_dt))/365
+	as stock_age 
+	from stock_transaction st 
+	inner join
+	stock_industry_code ic on st.stock_id = ic.stock_id and ic.exchange_type  = 'HOSE'
+	where extract(dow from st.transaction_date) in (1,2,3,4,5)
+	and extract(year from st.transaction_date) >= 2018
+;
+
