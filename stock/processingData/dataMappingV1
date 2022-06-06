@@ -42,4 +42,35 @@ insert into stock_data_mapping_v1
 	where extract(dow from st.transaction_date) in (1,2,3,4,5)
 	and extract(year from st.transaction_date) >= 2018
 ;
+-- add 2 columns in mapping TABLEalter table stock_data_mapping_v1
+alter table stock_data_mapping_v1
+add column min_transaction_date timestamp
+add column max_transaction_date timestamp;
 
+-- V2:
+insert into stock_data_mapping_v1 
+	select st.*, 
+	ic.industry_lvl_1,
+	ic.ngay_giao_dich_dt ngay_giao_dich_dt,	
+	DATE_PART('year', age(max(st.transaction_date) over (partition by st.stock_id) , ic.ngay_giao_dich_dt)) + 1 stock_age,
+	min(st.transaction_date) over (partition by st.stock_id ) min_trasaction_date,
+	max(st.transaction_date) over (partition by st.stock_id) max_trasaction_date
+	from stock_transaction st
+	inner join
+	stock_industry_code ic on st.stock_id = ic.stock_id and ic.exchange_type  = 'HOSE'
+	where extract(dow from st.transaction_date) in (1,2,3,4,5)
+	and extract(year from st.transaction_date) >= 2018
+	
+	
+	-- check missing VALUES
+	select --count_stock_id / min_trans_date:: float percentage 
+count(distinct(t.stock_id))
+from
+(
+select st.stock_id, st.transaction_date,
+count(st.stock_id) over (partition by st.stock_id)::integer count_stock_id,
+case when max(transaction_date) over (partition by st.stock_id)::DATE - min(transaction_date) over (partition by st.stock_id)::DATE = 0 then 1 else
+	max(transaction_date) over (partition by st.stock_id)::DATE - min(transaction_date) over (partition by st.stock_id)::DATE end min_trans_date,
+age(max(transaction_date) over (partition by st.stock_id) , min(transaction_date) over (partition by st.stock_id) ) age
+from stock_transaction st
+where extract(year from st.transaction_date) >= 2018 ) t where count_stock_id / min_trans_date::float > 0.5
