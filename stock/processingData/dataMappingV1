@@ -63,14 +63,23 @@ insert into stock_data_mapping_v1
 	
 	
 	-- check missing VALUES
-	select --count_stock_id / min_trans_date:: float percentage 
-count(distinct(t.stock_id))
+select t.trans_year trans_year,
+t.stock_id stock_id,
+t.max_date,
+t.min_date,
+avg(t.trans_count) trans_count_year,
+avg(t.trans_interval) trans_interval_year,
+avg(t.trans_count/(case when t.trans_interval = 0 then 1 else t.trans_interval end):: numeric(10,2)) trans_perc
 from
 (
-select st.stock_id, st.transaction_date,
-count(st.stock_id) over (partition by st.stock_id)::integer count_stock_id,
-case when max(transaction_date) over (partition by st.stock_id)::DATE - min(transaction_date) over (partition by st.stock_id)::DATE = 0 then 1 else
-	max(transaction_date) over (partition by st.stock_id)::DATE - min(transaction_date) over (partition by st.stock_id)::DATE end min_trans_date,
-age(max(transaction_date) over (partition by st.stock_id) , min(transaction_date) over (partition by st.stock_id) ) age
+select extract(year from st.transaction_date) trans_year,
+st.stock_id,
+max(st.transaction_date) over (partition by st.stock_id,extract(year from st.transaction_date) )::date max_date,
+min(st.transaction_date) over (partition by st.stock_id,extract(year from st.transaction_date) )::date min_date, 
+count(st.stock_id) over (partition by st.stock_id,extract(year from st.transaction_date) )::integer trans_count,
+max(st.transaction_date) over (partition by st.stock_id,extract(year from st.transaction_date) )::date - min(st.transaction_date) over (partition by st.stock_id,extract(year from st.transaction_date))::date trans_interval
 from stock_transaction st
-where extract(year from st.transaction_date) >= 2018 ) t where count_stock_id / min_trans_date::float > 0.5
+where extract(year from st.transaction_date) >= 2018
+	) t	
+group by 1,2,3,4
+order by 1
