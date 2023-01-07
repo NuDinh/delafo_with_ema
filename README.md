@@ -1,2 +1,1 @@
-# repo_for_thesis
-use to stock and cryptocurrency
+# repo_for_thesis: that is another version of delafo model, which add ema to input 
