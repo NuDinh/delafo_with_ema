@@ -28,13 +28,6 @@ def calculateEma(series, period, keep_length= True):
     return np.asarray(ema, dtype= np.float32)
 
 def prepair_data(path, window_x, window_y, periods, data_from, data_to):
-  """
-  path:
-  window_x:
-  windown_y:
-  data_from:
-  data_to:
-  """
     data = pd.read_csv(path)
     original_dataset = data.copy()
     original_dataset['date'] = pd.to_datetime(original_dataset.date)
@@ -53,8 +46,8 @@ def prepair_data(path, window_x, window_y, periods, data_from, data_to):
 
     # remove ticket having ratio of null > 0.05
     for col in columns:
-    if filter_dataset_w[col].isnull().sum()/filter_dataset_w.shape[0] > 0.05:
-        filter_dataset_w = filter_dataset_w.drop([col], axis = 1)
+        if filter_dataset_w[col].isnull().sum()/filter_dataset_w.shape[0] > 0.05:
+            filter_dataset_w = filter_dataset_w.drop([col], axis = 1)
 
     # check return greater than 7%
     closes = filter_dataset_w.close
