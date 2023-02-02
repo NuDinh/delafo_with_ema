@@ -13,18 +13,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras.models import load_model
 class DELAFO:
-    def __init__(self,model_name,model,X,y,tickers,timesteps_input=64,timesteps_output=19, periods= [10, 34, 89, 100, 200]):
+    def __init__(self,model_name,model,X,y,tickers,timesteps_input=64,timesteps_output=19, periods= [10, 34, 89, 100, 200], data_from = 2016, data_to = 2022):
         self.model_name = model_name
         self.model = model
         self.X,self.y,self.tickers = X,y,tickers
         self.timesteps_input = timesteps_input
         self.timesteps_output = timesteps_output
         self.periods = periods
+        self.data_from = data_from
+        self.data_to = data_to
 
     @classmethod
-    def from_existing_config(cls,path_data,model_name,model_config_path,timesteps_input=64,timesteps_output=19,periods= []):
+    def from_existing_config(cls,path_data,model_name,model_config_path,timesteps_input=64,timesteps_output=19,periods= [], data_from = 2016, data_to = 2022):
 
-        X,y,tickers = prepair_data(path_data,window_x=timesteps_input,window_y=timesteps_output, periods= periods)
+        X,y,tickers = prepair_data(path_data,window_x=timesteps_input,window_y=timesteps_output, periods= periods, data_from = data_from, data_to = data_to)
 
         if model_name == "ResNet":
             hyper_params = load_config_file(model_config_path[model_name])
@@ -176,6 +178,8 @@ if __name__ =="__main__":
     parser.add_argument('--model_path', type=str, default='',help='Path to pretrain model')
     parser.add_argument('--timesteps_input', type=int, default=64,help='timesteps (days) for input data')
     parser.add_argument('--timesteps_output', type=int, default=19,help='Timesteps (days) for output data ')
+    parser.add_argument('--data_from', type=int, default=2016,help='Get data from year')
+    parser.add_argument('--data_to', type=int, default=2022,help='Get data until year')
     args = parser.parse_args()
 
     # periods = [10, 34, 89, 100, 200]
