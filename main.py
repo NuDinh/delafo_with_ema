@@ -62,7 +62,7 @@ class DELAFO:
             model = build_selfatt_lstm_model(hyper_params)
         # model.name = model_name
 
-        return cls(model_name,model,X[100:],y[100:],tickers,timesteps_input,timesteps_output,periods)
+        return cls(model_name,model,X,y,tickers,timesteps_input,timesteps_output,periods)
 
     @classmethod
     def from_saved_model(cls,path_data,model_path,timesteps_output):
@@ -187,7 +187,7 @@ if __name__ =="__main__":
     periods = [10, 34, 89, 100]
 
     if args.load_pretrained == False:
-        delafo = DELAFO.from_existing_config(args.data_path,args.model,model_config_path,args.timesteps_input,args.timesteps_output, periods= periods)
+        delafo = DELAFO.from_existing_config(args.data_path,args.model,model_config_path,args.timesteps_input,args.timesteps_output,args.data_from,args.data_to,periods= periods)
         delafo.train_model(n_fold=10,batch_size=16,epochs=100)
         delafo.save_model()
     else:

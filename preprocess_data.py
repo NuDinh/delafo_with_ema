@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import pickle
+from dateutil.relativedelta import relativedelta
 from sklearn.model_selection import train_test_split
 
 def calculateEma(series, period, keep_length= True):
@@ -59,9 +60,9 @@ def prepair_data(path, window_x, window_y, periods, data_from, data_to):
 
     # removing data do not transaction in 3 months ago
 
-    last_date = max(original_dataset.date)
+    last_date = max(df_final.close.reset_index().date)
     last_date_minus_3_months = last_date + relativedelta(months=-3)
-    proc_dt_minus_3_months_str = last_date_minus_3_months.date().strftime('%Y-%m-%d')
+    proc_dt_minus_3_months_str = last_date_minus_3_months.strftime('%Y-%m-%d')
 
     df_3m = df_final.close.reset_index()
     df_3m['date'] = pd.to_datetime(df_3m['date'])
